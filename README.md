@@ -6,6 +6,147 @@
 
 This repository consolidates AWS-related tools, Lambda functions, and security standards for cloud infrastructure management and monitoring.
 
+## 🏗️ Architecture
+
+### AWS API Monitoring Architecture
+
+```mermaid
+graph TB
+    subgraph "AWS Services"
+        EC2[EC2 Instances]
+        S3[S3 Buckets]
+        KMS[KMS Keys]
+        SG[Security Groups]
+        IAM[IAM Roles]
+    end
+    
+    subgraph "Monitoring Layer"
+        CLOUDTRAIL[CloudTrail<br/>API Logging]
+        CLOUDWATCH_EVENTS[CloudWatch Events<br/>Event Patterns]
+        CLOUDWATCH_LOGS[CloudWatch Logs]
+    end
+    
+    subgraph "Lambda Functions"
+        API_MONITOR[API Monitor Lambda<br/>Real-time Monitoring]
+        SG_MONITOR[Security Group Monitor]
+        KMS_MONITOR[KMS Monitor]
+        CLOUDTRAIL_AUDIT[CloudTrail Audit Lambda]
+    end
+    
+    subgraph "Notifications"
+        SNS[SNS Topics]
+        EMAIL[Email Alerts]
+    end
+    
+    EC2 --> CLOUDTRAIL
+    S3 --> CLOUDTRAIL
+    KMS --> CLOUDTRAIL
+    SG --> CLOUDTRAIL
+    IAM --> CLOUDTRAIL
+    
+    CLOUDTRAIL --> CLOUDWATCH_LOGS
+    CLOUDWATCH_EVENTS --> API_MONITOR
+    CLOUDWATCH_EVENTS --> SG_MONITOR
+    CLOUDWATCH_EVENTS --> KMS_MONITOR
+    
+    API_MONITOR --> CLOUDTRAIL_AUDIT
+    SG_MONITOR --> SNS
+    KMS_MONITOR --> SNS
+    CLOUDTRAIL_AUDIT --> SNS
+    SNS --> EMAIL
+    
+    style CLOUDTRAIL fill:#e1f5ff
+    style CLOUDWATCH_EVENTS fill:#fff4e1
+    style API_MONITOR fill:#e8f5e9
+    style SNS fill:#f3e5f5
+```
+
+### Amazon Systems Manager (SSM) Architecture
+
+```mermaid
+graph TB
+    subgraph "AWS Account"
+        ORG[Organization]
+        SCP[Service Control Policies<br/>SCP]
+    end
+    
+    subgraph "EC2 Instances"
+        EC2_1[EC2 Instance 1<br/>SSM Agent]
+        EC2_2[EC2 Instance 2<br/>SSM Agent]
+        EC2_3[EC2 Instance 3<br/>SSM Agent]
+    end
+    
+    subgraph "SSM Services"
+        SSM_SERVICE[Systems Manager Service]
+        SSM_SESSIONS[SSM Sessions<br/>Encrypted]
+        SSM_DOCUMENTS[SSM Documents<br/>Run Commands]
+    end
+    
+    subgraph "Security & Monitoring"
+        KMS_ENCRYPT[KMS Encryption<br/>Session Data]
+        CLOUDTRAIL_SSM[CloudTrail<br/>SSM API Logging]
+        CLOUDWATCH_SSM[CloudWatch<br/>Session Logs]
+    end
+    
+    subgraph "IAM & Access"
+        IAM_ROLE[IAM Role<br/>SSM Permissions]
+        SSM_ACCESS[SSM Access Control]
+    end
+    
+    ORG --> SCP
+    SCP --> SSM_SERVICE
+    EC2_1 --> IAM_ROLE
+    EC2_2 --> IAM_ROLE
+    EC2_3 --> IAM_ROLE
+    IAM_ROLE --> SSM_ACCESS
+    SSM_ACCESS --> SSM_SERVICE
+    SSM_SERVICE --> SSM_SESSIONS
+    SSM_SERVICE --> SSM_DOCUMENTS
+    SSM_SESSIONS --> KMS_ENCRYPT
+    SSM_SESSIONS --> CLOUDTRAIL_SSM
+    SSM_SESSIONS --> CLOUDWATCH_SSM
+    
+    style SSM_SERVICE fill:#e1f5ff
+    style KMS_ENCRYPT fill:#fff4e1
+    style SSM_SESSIONS fill:#e8f5e9
+    style CLOUDTRAIL_SSM fill:#f3e5f5
+```
+
+### AWS Security Standards Architecture
+
+```mermaid
+graph LR
+    subgraph "Security Framework"
+        IAM_STD[IAM Standards<br/>Policies & Best Practices]
+        CONSOLE_STD[Management Console<br/>Security Guidelines]
+        COMPLIANCE[Compliance Frameworks<br/>CIS, NIST, PCI-DSS]
+    end
+    
+    subgraph "Implementation"
+        IAM_POLICIES[IAM Policies<br/>Least Privilege]
+        CONSOLE_CONFIG[Console Configuration<br/>MFA, Access Control]
+        AUDIT[Security Audits<br/>Regular Reviews]
+    end
+    
+    subgraph "Monitoring"
+        GUARDDUTY[GuardDuty<br/>Threat Detection]
+        CONFIG[Config<br/>Compliance Monitoring]
+        CLOUDTRAIL_STD[CloudTrail<br/>Audit Logs]
+    end
+    
+    IAM_STD --> IAM_POLICIES
+    CONSOLE_STD --> CONSOLE_CONFIG
+    COMPLIANCE --> AUDIT
+    
+    IAM_POLICIES --> GUARDDUTY
+    CONSOLE_CONFIG --> CONFIG
+    AUDIT --> CLOUDTRAIL_STD
+    
+    style IAM_STD fill:#e1f5ff
+    style COMPLIANCE fill:#fff4e1
+    style GUARDDUTY fill:#e8f5e9
+```
+
 ## 📁 Projects
 
 ### [Lambda](./Lambda/)

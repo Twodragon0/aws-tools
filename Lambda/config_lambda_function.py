@@ -45,7 +45,12 @@ def lambda_handler(event, context):
     else:
         color = "#3AA3E3"  # Default color
     
-    webhook_url = "*"
+    # 보안: Webhook URL은 환경 변수에서 읽기 (하드코딩 금지)
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL_CONFIG', '')
+    
+    if not webhook_url:
+        logger.error("Slack webhook URL이 설정되지 않았습니다.")
+        raise ValueError("SLACK_WEBHOOK_URL_CONFIG 환경 변수가 설정되지 않았습니다.")
 
     slack_data = {
         "attachments": [
